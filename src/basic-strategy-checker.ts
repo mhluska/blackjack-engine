@@ -1,6 +1,7 @@
 import Utils from './utils';
 import Game, { GameSettings } from './game';
 import Hand from './hand';
+import { value } from './card';
 import { selectCharts } from './charts/utils';
 import {
   ChartType,
@@ -40,7 +41,7 @@ export default class BasicStrategyChecker {
     const [chartMin, chartMax] = chartMinMax(chartType);
 
     const playerTotal = Utils.clamp(
-      hand.hasPairs && allowSplit ? hand.cards[0].value : hand.cardTotal,
+      hand.hasPairs && allowSplit ? value(hand.cards[0]) : hand.cardTotal,
       chartMin,
       chartMax
     );
@@ -51,7 +52,7 @@ export default class BasicStrategyChecker {
     }
 
     const dealerHints = chart[playerTotal - chartMin];
-    const dealersCard = game.dealer.upcard.value;
+    const dealersCard = value(game.dealer.upcard);
     const correctMove = dealerHints[dealersCard - 2];
 
     if (

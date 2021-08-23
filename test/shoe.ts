@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 
 import Shoe from '../src/shoe';
-import Card from '../src/card';
+import createCard, { Card, suit } from '../src/card';
 import { Suit, Rank } from '../src/types';
 
 import { settings } from './mocks';
@@ -15,10 +15,10 @@ describe('Shoe', function () {
   beforeEach(function () {
     shoe = new Shoe({ settings });
     cards = [
-      new Card(Suit.Hearts, Rank.Ace, shoe),
-      new Card(Suit.Diamonds, Rank.Ace, shoe),
-      new Card(Suit.Clubs, Rank.Ace, shoe),
-      new Card(Suit.Spades, Rank.Ace, shoe),
+      createCard(Suit.Hearts, Rank.Ace),
+      createCard(Suit.Diamonds, Rank.Ace),
+      createCard(Suit.Clubs, Rank.Ace),
+      createCard(Suit.Spades, Rank.Ace),
     ];
     shoe.setCards(cards);
   });
@@ -27,7 +27,7 @@ describe('Shoe', function () {
     shoe.drawCard();
 
     const card = shoe.drawCard();
-    expect(card?.suit).equals(Suit.Clubs);
+    expect(suit(card)).equals(Suit.Clubs);
   });
 
   it('gets shoe attributes', function () {

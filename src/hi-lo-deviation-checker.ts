@@ -2,6 +2,7 @@ import Utils from './utils';
 import Game, { GameSettings } from './game';
 import Hand from './hand';
 import { Move, CheckResult, GameStep, GameMode } from './types';
+import { value } from './card';
 
 type Illustrious18Deviation = {
   insurance?: boolean;
@@ -55,7 +56,7 @@ export default class HiLoDeviationChecker {
     }
 
     if (
-      game.dealer.upcard.value === 11 &&
+      value(game.dealer.upcard) === 11 &&
       game.state.step === GameStep.WaitingForInsuranceInput
     ) {
       deviationIndex = illustrious18Deviations.findIndex(
@@ -63,7 +64,7 @@ export default class HiLoDeviationChecker {
       );
     } else {
       const playerTotal = hand.cardTotal;
-      const dealersCard = game.dealer.upcard.value;
+      const dealersCard = value(game.dealer.upcard);
 
       deviationIndex = illustrious18Deviations.findIndex(
         (d, index) =>

@@ -1,4 +1,4 @@
-import Card from './card';
+import { Card, hiLoValue } from './card';
 import { SimpleObject, DeepPartial } from './types';
 
 type Range<T> = { start: number; end: number; value: T };
@@ -72,7 +72,7 @@ export default class Utils {
   }
 
   static hiLoValue(cards: Card[]): number {
-    return cards.reduce((acc, card) => acc + card.hiLoValue, 0);
+    return cards.reduce((acc, card) => acc + hiLoValue(card), 0);
   }
 
   // See https://stackoverflow.com/a/40724354/659910

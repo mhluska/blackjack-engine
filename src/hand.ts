@@ -1,8 +1,14 @@
 import GameObject from './game-object';
-import { Events } from './event-emitter';
 import Utils from './utils';
 import Player from './player';
-import Card, { CardAttributes } from './card';
+import {
+  rank,
+  value,
+  showingFace,
+  attributes,
+  Card,
+  CardAttributes,
+} from './card';
 import { Rank, rankToString } from './types';
 
 export type HandAttributes = {
@@ -49,15 +55,13 @@ export default class Hand extends GameObject {
   }
 
   takeCard(card: Card, { prepend = false } = {}): void {
-    card.on(Events.Change, () => this.emitChange());
-
     if (prepend) {
       this.cards.unshift(card);
     } else {
       this.cards.push(card);
     }
 
-    if (card.visible) {
+    if (showingFace(card)) {
       this.incrementTotalsForCard(card);
     }
 
@@ -77,19 +81,19 @@ export default class Hand extends GameObject {
   }
 
   incrementTotalsForCard(card: Card): void {
-    this.cardHighTotal += card.value;
-    this.cardLowTotal += card.rank === Rank.Ace ? 1 : card.value;
+    this.cardHighTotal += value(card);
+    this.cardLowTotal += rank(card) === Rank.Ace ? 1 : value(card);
 
-    if (card.rank === Rank.Ace) {
+    if (rank(card) === Rank.Ace) {
       this.acesCount += 1;
     }
   }
 
   decrementTotalsForCard(card: Card): void {
-    this.cardHighTotal -= card.value;
-    this.cardLowTotal -= card.rank === Rank.Ace ? 1 : card.value;
+    this.cardHighTotal -= value(card);
+    this.cardLowTotal -= rank(card) === Rank.Ace ? 1 : value(card);
 
-    if (card.rank === Rank.Ace) {
+    if (rank(card) === Rank.Ace) {
       this.acesCount -= 1;
     }
   }
@@ -106,14 +110,16 @@ export default class Hand extends GameObject {
 
   serialize({ showHidden = false } = {}): string {
     return this.cards
-      .map((card) => (card.visible || showHidden ? rankToString(card.rank) : '?'))
+      .map((card) =>
+        showingFace(card) || showHidden ? rankToString(rank(card)) : '?'
+      )
       .join(' ');
   }
 
   attributes(): HandAttributes {
     return {
       id: this.id,
-      cards: this.cards.map((card) => card.attributes()),
+      cards: this.cards.map((card) => attributes(card)),
       hasPairs: this.hasPairs,
       cardTotal: this.cardTotal,
       blackjack: this.blackjack,
@@ -145,7 +151,7 @@ export default class Hand extends GameObject {
 
   get hasPairs(): boolean {
     return (
-      this.cards.length === 2 && this.cards[0].value === this.cards[1].value
+      this.cards.length === 2 && value(this.cards[0]) === value(this.cards[1])
     );
   }
 
@@ -163,8 +169,8 @@ export default class Hand extends GameObject {
   get hasAces(): boolean {
     return (
       this.cards.length === 2 &&
-      this.cards[0].rank === Rank.Ace &&
-      this.cards[1].rank === Rank.Ace
+      rank(this.cards[0]) === Rank.Ace &&
+      rank(this.cards[1]) === Rank.Ace
     );
   }
 }

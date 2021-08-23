@@ -3,7 +3,7 @@ import { Events } from './event-emitter';
 import GameObject from './game-object';
 import Game from './game';
 import Hand, { HandAttributes } from './hand';
-import Card from './card';
+import { Card } from './card';
 import BasicStrategyChecker from './basic-strategy-checker';
 import HiLoDeviationChecker from './hi-lo-deviation-checker';
 import {

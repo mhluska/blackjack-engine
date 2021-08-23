@@ -1,6 +1,14 @@
 import Utils from './utils';
 import Deck from './deck';
-import Card, { CardAttributes } from './card';
+import {
+  value,
+  rank,
+  attributes,
+  setShowingFace,
+  hiLoValue,
+  Card,
+  CardAttributes,
+} from './card';
 import GameObject from './game-object';
 import BasicStrategyChecker from './basic-strategy-checker';
 import ExtendableError from './extendable-error';
@@ -44,8 +52,8 @@ export default class Shoe extends GameObject {
     this.currentCardIndex = cards.length - 1;
 
     for (const card of cards) {
-      this.hiLoRunningCount -= card.hiLoValue;
-      card.showingFace = false;
+      this.hiLoRunningCount -= hiLoValue(card);
+      setShowingFace(card, false);
     }
 
     this.cards = cards;
@@ -92,10 +100,10 @@ export default class Shoe extends GameObject {
 
     this.currentCardIndex -= 1;
 
-    card.showingFace = showingFace;
+    setShowingFace(card, showingFace);
 
     if (showingFace) {
-      this.hiLoRunningCount += card.hiLoValue;
+      this.hiLoRunningCount += hiLoValue(card);
     }
 
     this.emitChange();
@@ -114,7 +122,7 @@ export default class Shoe extends GameObject {
         penetration: Utils.round(this.penetration, 2),
         hiLoRunningCount: this.hiLoRunningCount,
         hiLoTrueCount: Utils.round(this.hiLoTrueCount, 2),
-        cards: this.remainingCards().map((card) => card.attributes()),
+        cards: this.remainingCards().map((card) => attributes(card)),
       }
     );
   }
@@ -123,7 +131,7 @@ export default class Shoe extends GameObject {
     return (
       `(${this.cardCount} card${this.cardCount > 1 ? 's' : ''}): ` +
       this.remainingCards()
-        .map((card) => rankToString(card.rank))
+        .map((card) => rankToString(rank(card)))
         .reverse()
         .join(' ')
     );
@@ -195,21 +203,21 @@ export default class Shoe extends GameObject {
     // player at the start of the game.
     Utils.arrayMove(
       this.cards,
-      this.cards.findIndex((card) => card.rank === playerRank1),
+      this.cards.findIndex((card) => rank(card) === playerRank1),
       this.cards.length - 1
     );
 
     if (dealerUpcard) {
       Utils.arrayMove(
         this.cards,
-        this.cards.findIndex((card) => card.value === dealerUpcard),
+        this.cards.findIndex((card) => value(card) === dealerUpcard),
         this.cards.length - 1 - 1
       );
     }
 
     Utils.arrayMove(
       this.cards,
-      this.cards.findIndex((card) => card.rank === playerRank2),
+      this.cards.findIndex((card) => rank(card) === playerRank2),
       this.cards.length - 1 - 2
     );
   }
@@ -292,9 +300,9 @@ export default class Shoe extends GameObject {
     this._moveCardsToFront(rank1, rank2, dealersCard);
 
     // Include all face up cards in the count from the opening hand.
-    const i1 = this.cards[this.cards.length - 1].hiLoValue;
-    const i2 = this.cards[this.cards.length - 2].hiLoValue;
-    const i3 = this.cards[this.cards.length - 3].hiLoValue;
+    const i1 = hiLoValue(this.cards[this.cards.length - 1]);
+    const i2 = hiLoValue(this.cards[this.cards.length - 2]);
+    const i3 = hiLoValue(this.cards[this.cards.length - 3]);
 
     // We artificially set the running count so that the true count works out
     // to what is required to act on the current illustrious 18 deviation. We

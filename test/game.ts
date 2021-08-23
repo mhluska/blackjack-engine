@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import { Events } from '../src/event-emitter';
 import Game, { GameSettings } from '../src/game';
-import Card from '../src/card';
+import createCard from '../src/card';
 import Utils from '../src/utils';
 import {
   DeepPartial,
@@ -34,11 +34,7 @@ function setupGame(options: Partial<GameSetupOptions> = {}) {
   const length = game.shoe.cards.length;
 
   mergedOptions.cards.forEach((cardRank: Rank, index: number) => {
-    game.shoe.cards[length - index - 1] = new Card(
-      Suit.Hearts,
-      cardRank,
-      game.shoe
-    );
+    game.shoe.cards[length - index - 1] = createCard(Suit.Hearts, cardRank);
   });
 
   return game;

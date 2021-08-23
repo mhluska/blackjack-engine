@@ -1,5 +1,5 @@
 import Player from './player';
-import Card from './card';
+import { Card } from './card';
 
 export default class Dealer extends Player {
   static entityName = 'dealer';

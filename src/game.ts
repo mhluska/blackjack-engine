@@ -6,6 +6,7 @@ import Player from './player';
 import BasicStrategyChecker from './basic-strategy-checker';
 import HiLoDeviationChecker from './hi-lo-deviation-checker';
 import Hand from './hand';
+import { flip, value, showingFace, hiLoValue, attributes, Card } from './card';
 import {
   Move,
   DeepPartial,
@@ -404,9 +405,11 @@ export default class Game extends EventEmitter {
     });
 
     // Dealer peeks at the hole card if the upcard is 10 to check blackjack.
-    if (this.dealer.upcard.value === 10 && this.dealer.holeCard.value === 11) {
-      this.dealer.cards[0].flip();
-      this.dealer.firstHand.incrementTotalsForCard(this.dealer.cards[0]);
+    if (
+      value(this.dealer.upcard) === 10 &&
+      value(this.dealer.holeCard) === 11
+    ) {
+      this.flipCard(this.dealer.cards[0]);
 
       for (const player of this.players) {
         player.eachHand((hand) => {
@@ -418,7 +421,7 @@ export default class Game extends EventEmitter {
     }
 
     // Dealer peeks at the hole card if the upcard is ace to ask insurance.
-    if (this.dealer.upcard.value === 11) {
+    if (value(this.dealer.upcard) === 11) {
       this.askInsurance(null, ...this.playersRight);
 
       if (!this.settings.autoDeclineInsurance) {
@@ -427,6 +430,17 @@ export default class Game extends EventEmitter {
     }
 
     return GameStep.PlayHandsRight;
+  }
+
+  flipCard(card: Card): void {
+    flip(this.dealer.cards[0]);
+
+    this.dealer.firstHand.incrementTotalsForCard(this.dealer.cards[0]);
+    this.shoe.hiLoRunningCount +=
+      (showingFace(this.dealer.cards[0]) ? 1 : -1) *
+      hiLoValue(this.dealer.cards[0]);
+
+    this.emit(Events.Change, 'card', attributes(card));
   }
 
   askInsurance(userInput: Move | null | undefined, ...players: Player[]): void {
@@ -450,7 +464,7 @@ export default class Game extends EventEmitter {
   }
 
   payoutInsurance(userInput: Move | undefined): void {
-    if (this.dealer.holeCard?.value !== 10) {
+    if (value(this.dealer.holeCard) !== 10) {
       return;
     }
 
@@ -608,8 +622,7 @@ export default class Game extends EventEmitter {
   }
 
   playDealer(): void {
-    this.dealer.cards[0].flip();
-    this.dealer.firstHand.incrementTotalsForCard(this.dealer.cards[0]);
+    this.flipCard(this.dealer.cards[0]);
 
     // Dealer draws cards until they reach 17. However, if all player hands have
     // busted, this step is skipped.
