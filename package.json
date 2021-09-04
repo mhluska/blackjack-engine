@@ -13,7 +13,10 @@
     "test:types": "tsc --noEmit --project .",
     "lint": "eslint --fix ./src ./test",
     "build": "webpack",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "asbuild:untouched": "asc assembly/index.ts --target debug",
+    "asbuild:optimized": "asc assembly/index.ts --target release",
+    "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized"
   },
   "repository": {
     "type": "git",
@@ -45,6 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.3",
     "@typescript-eslint/parser": "^4.28.0",
     "@webpack-cli/serve": "^1.5.1",
+    "assemblyscript": "^0.19.11",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "chai": "^4.3.4",
@@ -74,5 +78,7 @@
   "lint-staged": {
     "*.{ts,tsx}": "eslint --cache --fix"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@assemblyscript/loader": "^0.19.11"
+  }
 }
